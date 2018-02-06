@@ -37,6 +37,10 @@ MODULE_DESCRIPTION("Support for Atheros 802.11n wireless LAN cards.");
 MODULE_SUPPORTED_DEVICE("Atheros 802.11n WLAN cards");
 MODULE_LICENSE("Dual BSD/GPL");
 
+static int ath9k_hw_override_regdomain = -1;
+module_param_named(override_regdomain, ath9k_hw_override_regdomain, int, 0444);
+MODULE_PARM_DESC(override_regdomain, "Override regulatory domain");
+
 static void ath9k_hw_set_clockrate(struct ath_hw *ah)
 {
 	struct ath_common *common = ath9k_hw_common(ah);
@@ -2472,6 +2476,9 @@ int ath9k_hw_fill_cap_info(struct ath_hw *ah)
 
 	eeval = ah->eep_ops->get_eeprom(ah, EEP_REG_0);
 	regulatory->current_rd = eeval;
+
+	if (ath9k_hw_override_regdomain != -1)
+		regulatory->current_rd = ath9k_hw_override_regdomain;
 
 	if (ah->opmode != NL80211_IFTYPE_AP &&
 	    ah->hw_version.subvendorid == AR_SUBVENDOR_ID_NEW_A) {
